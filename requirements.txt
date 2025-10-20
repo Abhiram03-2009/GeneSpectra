@@ -1,0 +1,9 @@
+Flask
+Flask-Cors
+numpy
+pandas
+biopython
+tensorflow
+scikit-learn # For data splitting in 01_data_preparation.py
+matplotlib # For Grad-CAM visualization
+opencv-python # For image processing in Grad-CAM
