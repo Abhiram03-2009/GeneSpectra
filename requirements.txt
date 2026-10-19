@@ -1,9 +1,12 @@
-Flask
-Flask-Cors
+# app (backend/app.py)
+flask
+flask-cors
 numpy
+tensorflow>=2.19
+matplotlib
+# experiments (planB/)
 pandas
-biopython
-tensorflow
-scikit-learn # For data splitting in 01_data_preparation.py
-matplotlib # For Grad-CAM visualization
-opencv-python # For image processing in Grad-CAM
+scikit-learn
+twobitreader
+pybigtools
+pillow

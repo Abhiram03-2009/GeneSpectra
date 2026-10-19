@@ -1,0 +1,22 @@
+{
+  "train": {
+    "n": 431728,
+    "pathogenic": 215864,
+    "benign": 215864,
+    "genes": 10704
+  },
+  "val": {
+    "n": 12023,
+    "pathogenic": 6130,
+    "benign": 5893,
+    "genes": 901
+  },
+  "test": {
+    "n": 11952,
+    "pathogenic": 6071,
+    "benign": 5881,
+    "genes": 998
+  },
+  "ref_mismatch_dropped": 0,
+  "gene_overlap_train_vs_heldout": 0
+}
