@@ -1,0 +1,6 @@
+# local data, outputs, dependencies
+planB/data/
+planB/out/
+frontend/UI/node_modules/
+frontend/UI/.next/
+__pycache__/

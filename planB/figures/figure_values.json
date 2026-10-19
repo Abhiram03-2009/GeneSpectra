@@ -1,0 +1,41 @@
+{
+  "layer": "conv2d_2",
+  "n_test": 11952,
+  "central_21bp_over_window_mean": 1.065,
+  "peak_offset_pathogenic": 12,
+  "peak_offset_benign": 0,
+  "bar_values": {
+    "2D, 56k random split": [
+      0.8876,
+      0.0075
+    ],
+    "1D, 56k": [
+      0.8905,
+      0.0046
+    ],
+    "2D, 56k": [
+      0.8946,
+      0.0022
+    ],
+    "2D, 432k": [
+      0.9278,
+      0.0036
+    ],
+    "2D + phyloP 432k": [
+      0.9878,
+      0.0009
+    ]
+  },
+  "confusion_seed_avg": [
+    [
+      5631,
+      250
+    ],
+    [
+      274,
+      5797
+    ]
+  ],
+  "hybrid_loss_best_epoch": 15,
+  "hybrid_loss_epochs": 20
+}

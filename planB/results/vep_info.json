@@ -1,0 +1,12 @@
+{
+  "ensembl_data_release": {
+    "releases": [
+      116
+    ]
+  },
+  "ensembl_software": {
+    "release": 116
+  },
+  "endpoint": "https://rest.ensembl.org/vep/homo_sapiens/region?CADD=1&canonical=1",
+  "queried_on": "2026-10-19"
+}

@@ -1,0 +1,50 @@
+{
+  "2D-A": {
+    "val_auc": 0.8637,
+    "params": 503329,
+    "epochs": 22,
+    "seconds": 325.5
+  },
+  "2D-B": {
+    "val_auc": 0.8885,
+    "params": 442881,
+    "epochs": 11,
+    "seconds": 50.1
+  },
+  "2D-C": {
+    "val_auc": 0.8901,
+    "params": 866305,
+    "epochs": 13,
+    "seconds": 135.8
+  },
+  "2D-D": {
+    "val_auc": 0.8964,
+    "params": 1290625,
+    "epochs": 12,
+    "seconds": 149.1
+  },
+  "1D-A": {
+    "val_auc": 0.8932,
+    "params": 442369,
+    "epochs": 13,
+    "seconds": 54.6
+  },
+  "1D-B": {
+    "val_auc": 0.8871,
+    "params": 463361,
+    "epochs": 13,
+    "seconds": 57.7
+  },
+  "1D-C": {
+    "val_auc": 0.8946,
+    "params": 442753,
+    "epochs": 12,
+    "seconds": 50.9
+  },
+  "1D-D": {
+    "val_auc": 0.8865,
+    "params": 443393,
+    "epochs": 13,
+    "seconds": 55.0
+  }
+}
