@@ -1,0 +1,104 @@
+{
+  "clinvar_release": "2026-10-11",
+  "clinvar_temporal_reference_release": "2023-01-07",
+  "vcf_records_total": 4594764,
+  "dropped": {
+    "label": 2814527,
+    "stars": 61631,
+    "chrom": 1764,
+    "type": 26795,
+    "allele": 903,
+    "size": 20337,
+    "gene": 363
+  },
+  "eligible": {
+    "total": 1668444,
+    "pathogenic": 307817,
+    "benign": 1360627
+  },
+  "ref_allele_mismatch_dropped": 0,
+  "final": {
+    "total": 80000,
+    "pathogenic": 40000,
+    "benign": 40000,
+    "genes": 6506
+  },
+  "split_gene": {
+    "train": {
+      "n": 56025,
+      "pathogenic": 27799,
+      "benign": 28226,
+      "genes": 4607
+    },
+    "val": {
+      "n": 12023,
+      "pathogenic": 6130,
+      "benign": 5893,
+      "genes": 901
+    },
+    "test": {
+      "n": 11952,
+      "pathogenic": 6071,
+      "benign": 5881,
+      "genes": 998
+    }
+  },
+  "split_random": {
+    "train": {
+      "n": 56000,
+      "pathogenic": 28000,
+      "benign": 28000,
+      "genes": 5770
+    },
+    "val": {
+      "n": 12000,
+      "pathogenic": 6000,
+      "benign": 6000,
+      "genes": 3211
+    },
+    "test": {
+      "n": 12000,
+      "pathogenic": 6000,
+      "benign": 6000,
+      "genes": 3173
+    }
+  },
+  "gene_split_gene_overlap": {
+    "train_test": 0,
+    "train_val": 0
+  },
+  "random_split_test_variants_whose_gene_is_in_train": 0.9663333333333334,
+  "temporal_subset_of_gene_test": {
+    "n": 6407,
+    "pathogenic": 3238,
+    "benign": 3169
+  },
+  "vtype_by_label": {
+    "Deletion": {
+      "0": 872,
+      "1": 10593
+    },
+    "Duplication": {
+      "0": 499,
+      "1": 4679
+    },
+    "Indel": {
+      "0": 54,
+      "1": 783
+    },
+    "Insertion": {
+      "0": 142,
+      "1": 697
+    },
+    "single_nucleotide_variant": {
+      "0": 38433,
+      "1": 23248
+    }
+  },
+  "params": {
+    "seed": 42,
+    "flank": 50,
+    "max_indel": 10,
+    "n_per_class": 40000
+  }
+}

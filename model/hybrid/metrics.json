@@ -1,0 +1,24 @@
+{
+  "model": "2D-D CNN + phyloP branch, 3-seed ensemble (planB/train_full.py, full_2dD_phylop)",
+  "test": {
+    "n": 11952,
+    "accuracy": 0.9562,
+    "precision": 0.9587,
+    "recall": 0.9549,
+    "f1": 0.9568,
+    "mcc": 0.9123,
+    "roc_auc": 0.9907,
+    "pr_auc": 0.9909
+  },
+  "confusion_matrix": [
+    [
+      5631,
+      250
+    ],
+    [
+      274,
+      5797
+    ]
+  ],
+  "source": "planB/results/results_round2.json"
+}
