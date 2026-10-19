@@ -1,0 +1,8 @@
+{
+  "source": "UCSC hg38.phyloP100way.bw",
+  "missing_fraction": 1.338373875306965e-05,
+  "mean_at_variant_by_label": {
+    "0": 0.17856305837631226,
+    "1": 4.69544792175293
+  }
+}
