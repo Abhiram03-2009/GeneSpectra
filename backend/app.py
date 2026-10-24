@@ -13,6 +13,7 @@ import json
 import os
 import re
 import base64
+import ssl
 import urllib.request
 
 from flask import Flask, request, jsonify
@@ -31,6 +32,11 @@ WINDOW = 2 * FLANK + 1
 HERE = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(HERE, '..', 'model', 'hybrid')
 UCSC = 'https://api.genome.ucsc.edu/getData'
+try:  # some Python installs (e.g. Windows Store, macOS python.org) lack a CA bundle; certifi supplies one
+    import certifi
+    SSL_CTX = ssl.create_default_context(cafile=certifi.where())
+except ImportError:
+    SSL_CTX = ssl.create_default_context()
 app = Flask(__name__)
 CORS(app)
 
@@ -64,7 +70,8 @@ def parse_variant(text):
 
 def ucsc(endpoint, **params):
     url = f'{UCSC}/{endpoint}?' + ';'.join(f'{k}={v}' for k, v in params.items())
-    with urllib.request.urlopen(urllib.request.Request(url, headers={'Accept': 'application/json'}), timeout=30) as r:
+    with urllib.request.urlopen(urllib.request.Request(url, headers={'Accept': 'application/json'}), timeout=30,
+                                context=SSL_CTX) as r:
         return json.load(r)
 
 
@@ -94,7 +101,7 @@ def annotate(chrom, pos, ref, alt):
         try:
             req = urllib.request.Request('https://rest.ensembl.org/vep/homo_sapiens/region?canonical=1', data=body,
                                          headers={'Content-Type': 'application/json', 'Accept': 'application/json'})
-            with urllib.request.urlopen(req, timeout=20) as r:
+            with urllib.request.urlopen(req, timeout=20, context=SSL_CTX) as r:
                 v = json.load(r)[0]
             canon = [t for t in v.get('transcript_consequences', []) if t.get('canonical')]
             gene = canon[0].get('gene_symbol', 'Unknown') if canon else 'Unknown'
