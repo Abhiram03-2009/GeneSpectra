@@ -4,6 +4,7 @@ flask-cors
 numpy
 tensorflow>=2.19
 matplotlib
+certifi
 # experiments (planB/)
 pandas
 scikit-learn
