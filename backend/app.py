@@ -150,15 +150,19 @@ def plot_to_base64(fig):
     return base64.b64encode(buf.getvalue()).decode('utf-8')
 
 
-def style(ax, title):
-    ax.set_title(title, color='#67e8f9')
-    ax.tick_params(colors='#c3dae8')
+def style(ax, title, size=18):
+    """Dark theme with fonts large enough to read when the frontend shrinks the image into a card."""
+    ax.set_title(title, color='#67e8f9', fontsize=size + 2)
+    ax.tick_params(colors='#c3dae8', labelsize=size)
     ax.xaxis.label.set_color('#67e8f9')
     ax.yaxis.label.set_color('#67e8f9')
+    ax.xaxis.label.set_size(size)
+    ax.yaxis.label.set_size(size)
 
 
 BASE_COLORS = {'A': '#ff4d4d', 'C': '#4d4dff', 'G': '#4dff4d', 'T': '#ffff4d', 'N': '#808080'}
-ROW_LABELS = ['Reference', 'Alternate', 'Alt - Ref']
+ROW_LABELS = ['Ref', 'Alt', 'Diff']
+TICKS = [0, 25, 50, 75, 100]          # window index -> -50, -25, 0, +25, +50 bp
 
 
 def base_matrix(ref_win, alt_win):
@@ -168,35 +172,41 @@ def base_matrix(ref_win, alt_win):
     return np.array([[idx.get(b, 4) for b in s] for s in (ref_win, alt_win, diff)])
 
 
+def axes_101(ax):
+    """Shared axis layout for the 3 x 101 panels: short row labels, ticks every 25 bp, variant marked."""
+    ax.set_yticks(range(3)); ax.set_yticklabels(ROW_LABELS)
+    ax.set_xticks(TICKS); ax.set_xticklabels([f'{i - FLANK:+d}' if i != FLANK else '0' for i in TICKS])
+    ax.axvline(FLANK, color='white', ls=':', lw=2)
+    ax.set_xlabel('Position from variant (bp)')
+
+
 def plot_input(ref_win, alt_win):
     cmap = ListedColormap([BASE_COLORS[b] for b in 'ACGTN'])
-    fig, ax = plt.subplots(figsize=(12, 2.6), facecolor='#0a1e33')
+    fig, ax = plt.subplots(figsize=(6, 5), facecolor='#0a1e33')
     ax.imshow(base_matrix(ref_win, alt_win), cmap=cmap, vmin=0, vmax=4, aspect='auto', interpolation='nearest')
-    ax.set_yticks(range(3)); ax.set_yticklabels(ROW_LABELS)
-    ax.set_xticks(range(0, WINDOW, 10)); ax.set_xticklabels([str(i - FLANK) for i in range(0, WINDOW, 10)])
-    ax.set_xlabel('Position relative to variant (bp)')
-    handles = [plt.Line2D([0], [0], marker='s', color='w', label=b, markerfacecolor=BASE_COLORS[b], markersize=10)
+    axes_101(ax)
+    handles = [plt.Line2D([0], [0], marker='s', color='w', label=b, markerfacecolor=BASE_COLORS[b], markersize=14)
                for b in 'ACGT']
-    ax.legend(handles=handles, loc='upper left', bbox_to_anchor=(1, 1), frameon=False, labelcolor='#c3dae8')
-    style(ax, 'Model Input: 2D Encoded Sequence Window (101 bp)')
+    ax.legend(handles=handles, loc='upper center', bbox_to_anchor=(0.5, -0.22), ncol=4, frameon=False,
+              labelcolor='#c3dae8', fontsize=16)
+    style(ax, 'Model input (101 bp)')
     return plot_to_base64(fig)
 
 
 def plot_heatmap(rows, overlay=None):
-    fig, ax = plt.subplots(figsize=(12, 2.6), facecolor='#0a1e33')
+    fig, ax = plt.subplots(figsize=(6, 5), facecolor='#0a1e33')
     if overlay is not None:
         cmap = ListedColormap([BASE_COLORS[b] for b in 'ACGTN'])
         ax.imshow(overlay, cmap=cmap, vmin=0, vmax=4, aspect='auto', interpolation='nearest')
         im = ax.imshow(rows, cmap='magma', aspect='auto', alpha=0.75, interpolation='bilinear')
-        title = 'DNA + Grad-CAM Overlay'
+        title = 'DNA + Grad-CAM overlay'
     else:
         im = ax.imshow(rows, cmap='plasma', aspect='auto', interpolation='bilinear')
-        title = 'Grad-CAM Activation Heatmap'
-    cb = plt.colorbar(im, ax=ax, label='Activation Intensity', pad=0.02)
-    cb.ax.yaxis.label.set_color('#c3dae8'); cb.ax.tick_params(colors='#c3dae8')
-    ax.set_yticks(range(3)); ax.set_yticklabels(ROW_LABELS)
-    ax.set_xticks(range(0, WINDOW, 10)); ax.set_xticklabels([str(i - FLANK) for i in range(0, WINDOW, 10)])
-    ax.set_xlabel('Position relative to variant (bp)')
+        title = 'Grad-CAM heatmap'
+    cb = plt.colorbar(im, ax=ax, pad=0.03)
+    cb.set_label('Activation', color='#c3dae8', fontsize=16)
+    cb.ax.tick_params(colors='#c3dae8', labelsize=14)
+    axes_101(ax)
     style(ax, title)
     return plot_to_base64(fig)
 
@@ -206,11 +216,11 @@ def plot_test_confusion():
     fig, ax = plt.subplots(figsize=(6, 6), facecolor='#0a1e33')
     ax.imshow(cm, cmap='viridis')
     for (i, j), v in np.ndenumerate(cm):
-        ax.text(j, i, f'{v:,}', ha='center', va='center', color='white' if v < cm.max() / 2 else 'black', fontsize=16)
+        ax.text(j, i, f'{v:,}', ha='center', va='center', color='white' if v < cm.max() / 2 else 'black', fontsize=22)
     ax.set_xticks([0, 1]); ax.set_xticklabels(['Benign', 'Pathogenic'])
     ax.set_yticks([0, 1]); ax.set_yticklabels(['Benign', 'Pathogenic'])
     ax.set_xlabel('Predicted label'); ax.set_ylabel('True label')
-    style(ax, f'Held-out Test Set (n = {cm.sum():,}, unseen genes)')
+    style(ax, f'Held-out test set\n(n = {cm.sum():,}, unseen genes)')
     return plot_to_base64(fig)
 
 
@@ -236,7 +246,7 @@ def plot_base_activations(base_acts):
             patch.set_facecolor(BASE_COLORS[b]); patch.set_alpha(0.7)
     ax.set_ylabel('Activation Level'); ax.set_facecolor('#0a1e33')
     ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
-    style(ax, 'Base-Specific Activations')
+    style(ax, 'Base-specific activations')
     return plot_to_base64(fig)
 
 
