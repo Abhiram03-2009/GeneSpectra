@@ -14,7 +14,11 @@ import os
 import re
 import base64
 import ssl
+import threading
+import time
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
+from functools import lru_cache
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -75,6 +79,7 @@ def ucsc(endpoint, **params):
         return json.load(r)
 
 
+@lru_cache(maxsize=512)
 def fetch_inputs(chrom, pos, ref, alt):
     """Reference/alternate windows and phyloP track, built exactly as in planB/prep_data.py."""
     p0 = pos - 1
@@ -94,21 +99,48 @@ def fetch_inputs(chrom, pos, ref, alt):
     return ref_win, alt_win, phylop
 
 
+ANNOT_CACHE = {}          # (chrom, pos, ref, alt) -> (gene, consequence); only successful lookups are kept
+ANNOT_WAIT = 3.0          # seconds a request will wait for the optional gene lookup before showing "Unknown"
+executor = ThreadPoolExecutor(max_workers=4)
+
+
 def annotate(chrom, pos, ref, alt):
-    """Gene and consequence from Ensembl VEP (optional; the prediction does not use it)."""
+    """Gene and consequence from Ensembl VEP (optional; the prediction does not use it).
+    Runs in a background thread and is cached, because the Ensembl API can take 20+ seconds."""
+    key = (chrom, pos, ref, alt)
+    if key in ANNOT_CACHE:
+        return ANNOT_CACHE[key]
     body = json.dumps({'variants': [f'{chrom} {pos} . {ref} {alt} . . .']}).encode()
     for _ in range(2):
         try:
             req = urllib.request.Request('https://rest.ensembl.org/vep/homo_sapiens/region?canonical=1', data=body,
                                          headers={'Content-Type': 'application/json', 'Accept': 'application/json'})
-            with urllib.request.urlopen(req, timeout=20, context=SSL_CTX) as r:
+            with urllib.request.urlopen(req, timeout=30, context=SSL_CTX) as r:
                 v = json.load(r)[0]
             canon = [t for t in v.get('transcript_consequences', []) if t.get('canonical')]
             gene = canon[0].get('gene_symbol', 'Unknown') if canon else 'Unknown'
-            return gene, v.get('most_severe_consequence', 'unknown').replace('_', ' ')
+            ANNOT_CACHE[key] = (gene, v.get('most_severe_consequence', 'unknown').replace('_', ' '))
+            return ANNOT_CACHE[key]
         except Exception:
             continue
     return 'Unknown', 'unknown'
+
+
+DEMO_VARIANTS = [('17', 7675088, 'C', 'T'), ('1', 21873942, 'A', 'G'), ('14', 91303748, 'C', 'CTTTA')]
+
+
+def prefetch_demo_variants():
+    """Fill the caches for the example variants so a live demo answers immediately."""
+    for v in DEMO_VARIANTS:
+        try:
+            fetch_inputs(*v)
+            annotate(*v)
+        except Exception as e:
+            print(f'Prefetch failed for {v}: {e}')
+    print('Demo variants prefetched.')
+
+
+threading.Thread(target=prefetch_demo_variants, daemon=True).start()
 
 
 # --- Encoding ---
@@ -266,6 +298,8 @@ def predict_mutation():
         return jsonify({'error': 'GeneSpectra scores a specific variant. Enter a GRCh38 variant as '
                                  'chrom:pos:ref:alt, for example 17:7675088:C:T.'}), 400
     chrom, pos, ref, alt = variant
+    t_start = time.time()
+    annot_future = executor.submit(annotate, chrom, pos, ref, alt)   # slow, optional: run in parallel
     try:
         ref_win, alt_win, phylop = fetch_inputs(chrom, pos, ref, alt)
     except ValueError as e:
@@ -289,7 +323,10 @@ def predict_mutation():
             base_stats[b] = {'min': float(np.min(vals)), 'q1': float(q1), 'median': float(med), 'q3': float(q3),
                              'max': float(np.max(vals))}
 
-    gene, consequence = annotate(chrom, pos, ref, alt)
+    try:
+        gene, consequence = annot_future.result(timeout=ANNOT_WAIT)
+    except FutureTimeout:   # keep the result coming; the lookup finishes in the background and is cached
+        gene, consequence = 'Unknown', 'not available yet (Ensembl lookup still running)'
     peak = int(np.argmax(profile)) - FLANK
     t = METRICS['test']
     summary = {
