@@ -1,8 +1,6 @@
 # GeneSpectra
 
 Pathogenicity prediction for human SNVs and small indels with an interpretable CNN, plus a web interface.
-This repository accompanies the DABCon 2026 paper *"Benchmarking an Interpretable CNN Against Classical
-Predictors for Large-Scale Genomic Variant Pathogenicity Classification"* (Kaakarla).
 
 ## What the model is
 - Input: a 101 bp GRCh38 window around the variant, encoded as a 3×101×4 "image" (reference one-hot,
