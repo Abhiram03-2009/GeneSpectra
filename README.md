@@ -51,3 +51,7 @@ the figures to `planB/figures/`.
 ## Legacy files
 `model/mutation_prediction_model.h5`, `model/cnn_model.py`, `scripts/` and `data/images/` are from the
 earlier prototype (trained on generated dummy sequences) and are not used by the current app or paper.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
